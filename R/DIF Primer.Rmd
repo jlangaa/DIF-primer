@@ -1,0 +1,15 @@
+---
+title: "DIF Primer"
+author: "Josh Langfus"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+Make sure the packages below are installed.
+
+```{r setup, include=FALSE}
+library(mirt)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
