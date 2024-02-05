@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 output: pdf_document
 ---
 
-#Setup
+# Setup
 
 Make sure the packages below are installed.
 
@@ -16,6 +16,7 @@ library(tidyverse)
 
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 Read in the data
 
 ```{r read data}
@@ -38,7 +39,7 @@ The data represent responses from 411 parents about their children on three diff
 
 Except for the `sex` column, the column names tell you the name of the measure and the item number. So for example, the column titled `raga_08` contains item 8 from the RAGA; `gbi10m_03` has item 3 from the GBI10m. The two GBI scales have 10 items each; the RAGA has 16 items.
 
-These scales have known factor structures. The two GBI scales are unidimensional -- i.e., all ten items on each scale measure one "thing." For the 10m, it's mania symptoms and for the 10d it's depression symptoms. The RAGA has a more complex factor structure. Although all the items measure reactive aggression to some extent, the first 8 items (`raga_01` to `raga_08`)  measure "temper loss" and the latter 8 (`raga_09` to `raga_16`) measure "aggressive behavior." The details here aren't important for the current example; all you need to know is that there are two correlated factors.
+These scales have known factor structures. The two GBI scales are unidimensional -- i.e., all ten items on each scale measure one "thing." For the 10m, it's mania symptoms and for the 10d it's depression symptoms. The RAGA has a more complex factor structure. Although all the items measure reactive aggression to some extent, the first 8 items (`raga_01` to `raga_08`) measure "temper loss" and the latter 8 (`raga_09` to `raga_16`) measure "aggressive behavior." The details here aren't important for the current example; all you need to know is that there are two correlated factors.
 
 # A bit about DIF
 
@@ -46,7 +47,7 @@ The (very) basic goal of DIF is to find out if some of the items on your measure
 
 One challenge of doing DIF -- maybe the central challenge -- is that to know if *some* of the items are behaving differently, we need to have another set of items on the scale that we think are *not* behaving differently to provide a basis of comparison. These are called "anchor items." How do you know which items aren't DIF-y if the whole point is that we're trying to figure that out? It's a great question -- one that has plagued the field since it's inception.
 
-There are two ways of looking at DIF. One way is to use a procedure called a "Mantel-Haenszel Test", which helps establish whether there is potential DIF on any of the items. The second way is to fit an IRT model and use invariance testing. The examples below will show both. 
+There are two ways of looking at DIF. One way is to use a procedure called a "Mantel-Haenszel Test", which helps establish whether there is potential DIF on any of the items. The second way is to fit an IRT model and use invariance testing. The examples below will show both.
 
 The MH test matches respondents in both groups based on some other variable (by default, the total score on the test) and looks to see if there are significant differences in item performance in those strata. There are a lot of technical details and caveats which, again, I'll ignore -- but take a look at the Teresi et al. reading if you're curious.
 
@@ -54,8 +55,7 @@ The MH test matches respondents in both groups based on some other variable (by 
 
 For this example, we're going to look at differential item function across the `sex` variable. We'll do this in two stages. We'll start with examining just the GBI10d items.
 
-For simplicity, let's split the data into three separate data frames, one for each measure, and each one also containing the `sex` column. This will make it easier to use the functions later on. Note that for the Sex variable, 0 = female and 1 = male (which were the only sexes reported in this sample). There was one person who did not respond to this question, and they have an `NA` value. 
-
+For simplicity, let's split the data into three separate data frames, one for each measure, and each one also containing the `sex` column. This will make it easier to use the functions later on. Note that for the Sex variable, 0 = female and 1 = male (which were the only sexes reported in this sample). There was one person who did not respond to this question, and they have an `NA` value.
 
 ```{r data wrangle}
 gbi10d <- dat %>%
@@ -68,10 +68,9 @@ raga <- dat %>%
   select(sex, starts_with("raga"))
 ```
 
-
 ## GBI 10-D MH test
 
-In the function call below, we use `difMH()` from the `difR` package to run the MH test. As arguments, we give it the data frame with our items (and the grouping variable). Then we tell it which column contains the group variable (in this case, "sex"), and then we tell it which is the "focal" group -- it doesn't really matter, so I've chosen "0" at random, which is female.  
+In the function call below, we use `difMH()` from the `difR` package to run the MH test. As arguments, we give it the data frame with our items (and the grouping variable). Then we tell it which column contains the group variable (in this case, "sex"), and then we tell it which is the "focal" group -- it doesn't really matter, so I've chosen "0" at random, which is female.
 
 ```{r}
 difMH(gbi10d, "sex", "0")
@@ -84,7 +83,7 @@ The GBI 10d results suggest no DIF detected. Woohoo!
 Let's try with the RAGA
 
 ```{r}
-difMH(raga, "sex","0")
+difMH(raga, "sex","0",purify = TRUE)
 ```
 
 It looks like we might have DIF on 3 items. Let's explore that further using `mirt`.
