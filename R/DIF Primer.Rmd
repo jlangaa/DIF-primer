@@ -90,28 +90,58 @@ difMH(raga, "sex","0")
 It looks like we might have DIF on 3 items. Let's explore that further using `mirt`.
 
 ```{r}
-# Define the measurement model for the RAGA
-# This model defines two factors, temp and aggr, and allows them to correlate
-mod1 <- 
-  '
-  temp = 1-8
-  aggr = 9-16
-  COV = temp*aggr
-  '
-
 ## set the type of invariance we'll test
-invariance <- c("free_mean", "free_var", "slopes", "intercepts")
+invariance <- c("slopes", "intercepts")
 
 # Fit the multigroup model with sex as the grouping variable
 fit1 <- multipleGroup(
   data = raga[2:17], ## need to cut out the sex column and give only items
-  model = mod1,
+  model = 1, # this is a shortcut for a 1-dimensional model
   group = as.factor(raga$sex), # note, group has to be factor or character type
   itemtype = "graded", # graded response model is appropriate for ordinal items
   invariance = invariance,
   verbose = TRUE
 )
 
-summary(fit1)
+## Uncomment this line to see the item loadings
+# summary(fit1)
+
+## Check for uniform DIF - just in the difficulty parameters
+uniform <- DIF(fit1,
+               which.par = c('d1','d2','d3','d4'),
+               scheme = 'drop'
+               # items2test = c("raga_02","raga_03","raga_14")
+               )
+uniform
+
+nonuniform <- DIF(fit1,
+               which.par = c('a1','d1','d2','d3','d4'),
+               scheme = 'drop'
+               # items2test = c("raga_02","raga_03","raga_14")
+               )
+nonuniform
+## with schema='drop', items with large p-values have DIF.
+
+## fit a model allowing items 2,3, and 14 to vary across groups
+fit2 <- multipleGroup(
+  data = raga[2:17], ## need to cut out the sex column and give only items
+  model = 1, # this is a shortcut for a 1-dimensional model
+  group = as.factor(raga$sex), # note, group has to be factor or character type
+  itemtype = "graded", # graded response model is appropriate for ordinal items
+  ## Below, specify the names of items you want to KEEP INVARIANT
+  ## I did this with a shorthand by referencing the column names, but you can just
+  ## write out the names of the items in a vector, e.g. c("raga_01","raga_02")
+  invariance = colnames(raga[2:17])[c(1,4:13,15,16)],
+  verbose = TRUE
+)
 ```
 
+The following plots show the DIF in the item traces
+
+```{r}
+itemplot(fit2, item = 2)
+itemplot(fit2, item = 3)
+itemplot(fit2, item = 14)
+```
+
+Note that if we have anchor items, we can specify them in both the MH test and the mirt function above. For MH, we set them with the `anchor.items` argument; with the mirt DIF function, supply `items2test` with the items you think are NOT invariant.
