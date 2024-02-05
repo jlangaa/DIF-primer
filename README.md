@@ -15,3 +15,7 @@ There are four folders with some things in them. You can use this structure to k
 - R - put your code here!
 - output - put any figures, knit documents, etc. here. This will help keep things organized
 - reading - I put some readings here that may be useful for understanding DIF.
+
+# Getting Started
+
+Download the whole repository to your computer and unzip the file (or clone it with git). Then open up the file 'DIF Primer.Rmd' in the R/ folder.
