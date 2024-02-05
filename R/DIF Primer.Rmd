@@ -46,11 +46,11 @@ The (very) basic goal of DIF is to find out if some of the items on your measure
 
 One challenge of doing DIF -- maybe the central challenge -- is that to know if *some* of the items are behaving differently, we need to have another set of items on the scale that we think are *not* behaving differently to provide a basis of comparison. These are called "anchor items." How do you know which items aren't DIF-y if the whole point is that we're trying to figure that out? It's a great question -- one that has plagued the field since it's inception.
 
-Fortunately, there's a procedure that can (kind of) solve the problem. We can do the DIF in two stages: first, do what's called a "Mantel-Haenszel Test", which helps establish whether there is potential DIF on any of the items. Then we use the items that likely do not have DIF as anchor items. 
+There are two ways of looking at DIF. One way is to use a procedure called a "Mantel-Haenszel Test", which helps establish whether there is potential DIF on any of the items. The second way is to fit an IRT model and use invariance testing. The examples below will show both. 
 
 The MH test matches respondents in both groups based on some other variable (by default, the total score on the test) and looks to see if there are significant differences in item performance in those strata. There are a lot of technical details and caveats which, again, I'll ignore -- but take a look at the Teresi et al. reading if you're curious.
 
-# Doing the DIF - Step 1
+# Doing the DIF - MH Test
 
 For this example, we're going to look at differential item function across the `sex` variable. We'll do this in two stages. We'll start with examining just the GBI10d items.
 
@@ -89,4 +89,29 @@ difMH(raga, "sex","0")
 
 It looks like we might have DIF on 3 items. Let's explore that further using `mirt`.
 
+```{r}
+# Define the measurement model for the RAGA
+# This model defines two factors, temp and aggr, and allows them to correlate
+mod1 <- 
+  '
+  temp = 1-8
+  aggr = 9-16
+  COV = temp*aggr
+  '
+
+## set the type of invariance we'll test
+invariance <- c("free_mean", "free_var", "slopes", "intercepts")
+
+# Fit the multigroup model with sex as the grouping variable
+fit1 <- multipleGroup(
+  data = raga[2:17], ## need to cut out the sex column and give only items
+  model = mod1,
+  group = as.factor(raga$sex), # note, group has to be factor or character type
+  itemtype = "graded", # graded response model is appropriate for ordinal items
+  invariance = invariance,
+  verbose = TRUE
+)
+
+summary(fit1)
+```
 
