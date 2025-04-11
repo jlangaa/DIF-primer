@@ -67,6 +67,27 @@ gbi10m <- dat %>%
 raga <- dat %>%
   select(sex, starts_with("raga"))
 ```
+```{r}
+## example code for doing anchor search with ordinal logistic regression
+# Requires ordinal package
+#inames <- colnames(csi.parent %>% select(starts_with("csi")))
+#
+#olr.dif <- map(inames, \(i) { 
+#  csi.parent %>% select(lang, starts_with("csi")) %>%
+#    transmute(
+#      item = factor(csi.parent[[i]], ordered=TRUE),
+#      grp  = factor(lang,levels = c("ENG","ESP")),
+#      score= rowSums(csi.parent %>% select(starts_with("csi") & !(!!i)))
+#    ) %>%
+#    ordinal::clm(item ~ score * grp, data =.) %>%
+#    broom::tidy() %>%
+#    mutate(item = !!i, .before =1)
+#  }) %>% bind_rows()
+#
+## Filter models and show just significant effects on the group or interaction term
+#olr.dif %>%
+#  filter(coef.type == "location" & term != "score" & p.value < .1)
+```
 
 ## GBI 10-D MH test
 
